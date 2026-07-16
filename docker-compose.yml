@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    image: python:3-alpine
+    volumes:
+      - ./app/app.py:/app/app.py:ro
+    command: python /app/app.py
+    ports:
+      - "8084:8080"
+    networks:
+      my-net:
+        ipv4_address: 172.30.0.20
+
+  nginx1:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx1.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8081:80"
+    depends_on:
+      - app
+      - nginx2
+      - nginx3
+    networks:
+      my-net:
+        ipv4_address: 172.30.0.11
+
+  nginx2:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx2.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8082:80"
+    depends_on:
+      - app
+      - nginx3
+    networks:
+      my-net:
+        ipv4_address: 172.30.0.12
+
+  nginx3:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx3.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8083:80"
+    depends_on:
+      - app
+    networks:
+      my-net:
+        ipv4_address: 172.30.0.13
+
+networks:
+  my-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
